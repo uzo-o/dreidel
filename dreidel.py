@@ -6,9 +6,61 @@ purpose: simulates the traditional Jewish game dreidel
 """
 
 import random
-# FIXME if user is taking from pot, check amount they must take vs amount in pot and act accordingly
-# FIXME if user is adding to pot, check amount they have vs the amount they must give
-# user totals and pot total should never be below 0
+
+
+def nun(current_player, piece_type):
+    """
+    Adds/removes 0 pieces from player when dreidel lands on Nun
+    :param current_player: the player who spun the dreidel
+    :param piece_type: the unit of currency the players are using
+    """
+    print(current_player + " has neither lost nor gained " + piece_type + ".")
+
+
+def hey(current_player, current_player_total, pcs_in_pot):
+    """
+    Adds half of pot total to player total when dreidel lands on Hey
+    :param current_player: the player who spun the dreidel
+    :param current_player_total: num of pieces belonging to the current player
+    :param pcs_in_pot: the total number of pieces in the pot
+    """
+    if pcs_in_pot % 2 == 0:
+        winnings = pcs_in_pot / 2
+    else:
+        winnings = (pcs_in_pot - 1) / 2
+
+    pcs_in_pot -= winnings
+    current_player_total += winnings
+
+    print(current_player + " has received half the pot.")
+
+
+def shin(current_player, current_player_total, piece_type, pcs_in_pot):
+    """
+    Removes one piece from player when dreidel lands on Shin
+    :param current_player: the player who spun the dreidel
+    :param current_player_total: num of pieces belonging to the current player
+    :param piece_type: the unit of currency the players are using
+    :param pcs_in_pot: the total number of pieces in the pot
+    """
+    pcs_in_pot += 1
+    current_player_total -= 1
+
+    print(current_player + " was forced to add of their " + piece_type +
+          "to the pot.")
+
+
+def gimel(current_player, current_player_total, pcs_in_pot):
+    """
+    Gives entire pot to player when dreidel lands on Gimel
+    :param current_player: the player who spun the dreidel
+    :param current_player_total: num of pieces belonging to the current player
+    :param pcs_in_pot: the total number of pieces in the pot
+    """
+    current_player_total += pcs_in_pot
+    pcs_in_pot -= pcs_in_pot
+
+    print(current_player + " received the whole pot!")
 
 
 def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
@@ -16,7 +68,7 @@ def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     Check if any player or the pot has run out of piece and rectify this
     :param players: the list players in the game
     :param player_pieces: the list of piece quantities for each player
-    :param piece_type: the unit of currency the players will use
+    :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
     :param total_piece_count: the number of pieces that must always be present
     """
@@ -50,25 +102,55 @@ def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
                 pcs_in_pot += 1
 
 
+def spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
+    """
+    Give each player the chance to spin the dreidel
+    :param players: the list players in the game
+    :param player_pieces: the list of piece quantities for each player
+    :param piece_type: the unit of currency the players are using
+    :param pcs_in_pot: the total number of pieces in the pot
+    :param total_piece_count: the number of pieces that must always be present
+    """
+    spin_options = ["Nun", "Hey", "Shin", "Gimel"]
+    for i in range(len(players)):
+        spin_result = random.choice(spin_options)
+        print("The dreidel has landed on " + spin_result + ".")
+
+        if spin_result == "Nun":
+            nun(players[i], piece_type)
+        elif spin_result == "Hey":
+            hey(players[i], player_pieces[i], pcs_in_pot)
+        elif spin_result == "Shin":
+            shin(players[i], player_pieces[i], piece_type, pcs_in_pot)
+        elif spin_result == "Gimel":
+            gimel(players[i], player_pieces[i], pcs_in_pot)
+
+        quit_early = input("(This player can quit by pressing 'q'.) ")
+        if quit_early == "q":
+            pcs_in_pot += player_pieces[i]
+            player_pieces[i] -= player_pieces[i]
+
+        check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+
+
 def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     """
     Runs through the current round
     :param players: the list of players in the game
     :param player_pieces: the list of piece quantities for each player
-    :param piece_type: the unit of currency the players will use
+    :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
     :param total_piece_count: the number of pieces that must always be present
     """
     check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
-    # body
-    check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+    spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
 
 
 def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
     """
     Initiates a series of rounds using the new game parameters
     :param num_players: the number of players at the start of the game
-    :param piece_type: the unit of currency the players will use
+    :param piece_type: the unit of currency the players are using
     :param pcs_per_player: the number of pieces each player starts with
     :param total_piece_count: the number of pieces that must always be present
     """
