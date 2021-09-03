@@ -184,8 +184,8 @@ def spin(current_player, current_player_total, piece_type, pcs_in_pot):
         current_player_total, pcs_in_pot = gimel(current_player,
                                                  current_player_total, pcs_in_pot)
 
-    quit_early = input("(This player can quit by pressing 'q'.) ")
-    if quit_early == "q":
+    forfeit = input("(This player can forfeit by pressing 'f'.) ")
+    if forfeit == "f":
         pcs_in_pot += current_player_total
         current_player_total -= current_player_total
 
