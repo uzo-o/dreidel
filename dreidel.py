@@ -47,7 +47,7 @@ def shin(current_player, current_player_total, piece_type, pcs_in_pot):
     current_player_total -= 1
 
     print(current_player + " was forced to add of their " + piece_type +
-          "to the pot.")
+          " to the pot.")
 
 
 def gimel(current_player, current_player_total, pcs_in_pot):
@@ -143,7 +143,24 @@ def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
     :param total_piece_count: the number of pieces that must always be present
     """
     check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
-    spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+    if len(players) > 1:
+        for i in range(len(players)):
+            print(players[i] + ": " + str(player_pieces[i]) + " " + piece_type)
+
+        print("Each player will now spin the dreidel.")
+        spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+
+        if len(players) > 1:
+            print("The round has ended.\n"
+                  "Each player will now add one of their " + piece_type +
+                  " to the pot.")
+            for i in range(len(players)):
+                player_pieces[i] -= 1
+                pcs_in_pot += 1
+
+            print("Current Pot Total: " + str(pcs_in_pot) + " " + piece_type)
+            print("[Press any key to continue]")
+            input()
 
 
 def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
@@ -171,7 +188,7 @@ def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
     print("Each player has added one of their " + piece_type + " to the pot.\n"
           "There are now " + str(pcs_in_pot) + " " + piece_type + " in the pot.")
 
-    print("Press any key to continue")
+    print("[Press any key to continue]")
     input()
 
     while len(players) > 1:
