@@ -72,46 +72,91 @@ def gimel(current_player, current_player_total, pcs_in_pot):
     return current_player_total, pcs_in_pot
 
 
-def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
+def eliminate_player(current_player, current_player_total, players,
+                     player_pieces, piece_type, pcs_in_pot, total_piece_count):
     """
-    Check if any player or the pot has run out of piece and rectify this
+    Eliminate player if they have run out of pieces
+    :param current_player: the player who spun the dreidel
+    :param current_player_total: num of pieces belonging to the current player
+    :param players: the list of players in the game
+    :param player_pieces: the list of piece quantities for each player
+    :param piece_type: the unit of currency the players are using
+    :param pcs_in_pot: the total number of pieces in the pot
+    :param total_piece_count: the number of pieces that must always be present
+    :return new pot total, whether or not player was eliminated
+    """
+    eliminated = False
+    if current_player_total == 0:
+        print(current_player + " has run out of " + piece_type +
+              ". They are out.")
+        players.remove(current_player)
+        player_pieces.remove(current_player_total)
+        pcs_in_pot = total_piece_count - sum(player_pieces)
+        eliminated = True
+
+        # end game if one player remains
+        if len(players) == 1:
+            if player_pieces[0] == 0:
+                print(players[0] + " also ran out.\nNo one won :(")
+            else:
+                print(players[0] + " has won!\nThey get all " +
+                      str(total_piece_count) + " " + piece_type + ".")
+            print("GAME OVER")
+
+    return pcs_in_pot, eliminated
+
+
+def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count,
+          current_player_index):
+    """
+    Check if any player or the pot has run out of pieces and rectify this
     :param players: the list players in the game
     :param player_pieces: the list of piece quantities for each player
     :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
     :param total_piece_count: the number of pieces that must always be present
-    :return new pot total
+    :param current_player_index: index of player who spun the dreidel last
+    :return new pot total, lower index eliminations
     """
+    lower_index_elims = 0  # num of players whose turn comes before the next player that have been eliminated
+
     i = 0
     while i < len(players):
-        # eliminate player who has run out of pieces
         if player_pieces[i] == 0:
-            print(players[i] + " has run out of " + piece_type + ". They are out.")
-            players.remove(players[i])
-            player_pieces.remove(player_pieces[i])
-            pcs_in_pot += total_piece_count - sum(player_pieces)
-            # end game if one player remains
+            pcs_in_pot, dummy = eliminate_player(players[i], player_pieces[i],
+                                                 players, player_pieces, piece_type,
+                                                 pcs_in_pot, total_piece_count)
+            if i <= current_player_index:
+                lower_index_elims += 1
             if len(players) == 1:
-                if player_pieces[0] == 0:
-                    print(players[0] + " also ran out.\nNo one won :(")
-                else:
-                    print(players[0] + " has won!\nThey get all " +
-                          str(total_piece_count) + " " + piece_type + ".")
-                print("GAME OVER")
                 break
+        # doesn't increment list if someone was eliminated to avoid skipping players
         else:
             i += 1
 
-        # restock empty pot
-        if pcs_in_pot == 0:
-            print("The pot is empty.\n"
-                  "Every player must add another one of their "
-                  + piece_type + " to it.")
-            for i in range(len(players)):
-                player_pieces[i] -= 1
-                pcs_in_pot += 1
+    # restock empty pot
+    if pcs_in_pot == 0:
+        print("The pot is empty.\n"
+              "Every player must add another one of their "
+              + piece_type + " to it.")
+        i = 0
+        while i < len(players):
+            player_pieces[i] -= 1
+            pcs_in_pot += 1
+            old_num_players = len(players)
+            pcs_in_pot, eliminated = eliminate_player(players[i], player_pieces[i],
+                                                      players, player_pieces, piece_type,
+                                                      pcs_in_pot, total_piece_count)
+            if eliminated and i <= current_player_index:
+                lower_index_elims += 1
 
-    return pcs_in_pot
+            # if someone before the end of the list was eliminated, don't increment
+            if eliminated and i != old_num_players-1:
+                i = i
+            else:
+                i += 1
+
+    return pcs_in_pot, lower_index_elims
 
 
 def spin(current_player, current_player_total, piece_type, pcs_in_pot):
@@ -147,39 +192,44 @@ def spin(current_player, current_player_total, piece_type, pcs_in_pot):
     return current_player_total, pcs_in_pot
 
 
-def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
+def play_rounds(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     """
-    Run through the current round
+    Run through each round
     :param players: the list of players in the game
     :param player_pieces: the list of piece quantities for each player
     :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
     :param total_piece_count: the number of pieces that must always be present
     """
-    pcs_in_pot = check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
-    if len(players) > 1:
-        # print player totals
-        for i in range(len(players)):
-            print(players[i] + ": " + str(player_pieces[i]) + " " + piece_type)
-
-        print("\nEach player will now spin the dreidel.")
-        for i in range(len(players)):
-            player_pieces[i], pcs_in_pot = spin(players[i], player_pieces[i], piece_type,
-                                                pcs_in_pot)
-            pcs_in_pot = check(players, player_pieces, piece_type, pcs_in_pot,
-                               total_piece_count)
-
+    while len(players) > 1:
+        pcs_in_pot, dummy = check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count, 0)
         if len(players) > 1:
-            print("\nThe round has ended.\n"
-                  "Each player will now add one of their " + piece_type +
-                  " to the pot.")
+            # print player totals
             for i in range(len(players)):
-                player_pieces[i] -= 1
-                pcs_in_pot += 1
+                print(players[i] + ": " + str(player_pieces[i]) + " " + piece_type)
 
-            print("Current Pot Total: " + str(pcs_in_pot) + " " + piece_type)
-            print("[Press any key to continue]")
-            input()
+            print("\nEach player will now spin the dreidel.")
+            i = 0
+            while i < len(players):
+                player_pieces[i], pcs_in_pot = spin(players[i], player_pieces[i], piece_type,
+                                                    pcs_in_pot)
+                pcs_in_pot, lower_index_elims = check(players, player_pieces, piece_type,
+                                                      pcs_in_pot, total_piece_count, i)
+                # shift the list while accounting for players w/ earlier turns leaving
+                i -= lower_index_elims
+                i += 1
+
+            if len(players) > 1:
+                print("\nThe round has ended.\n"
+                      "Each player will now add one of their " + piece_type +
+                      " to the pot.")
+                for i in range(len(players)):
+                    player_pieces[i] -= 1
+                    pcs_in_pot += 1
+
+                print("Current Pot Total: " + str(pcs_in_pot) + " " + piece_type)
+                print("[Press any key to continue]")
+                input()
 
 
 def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
@@ -210,8 +260,10 @@ def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
     print("[Press any key to continue]")
     input()
 
-    while len(players) > 1:
-        new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+    # while len(players) > 1:
+    #    new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+
+    play_rounds(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
 
 
 def main():
