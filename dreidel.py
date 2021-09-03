@@ -46,7 +46,7 @@ def shin(current_player, current_player_total, piece_type, pcs_in_pot):
     pcs_in_pot += 1
     current_player_total -= 1
 
-    print(current_player + " was forced to add of their " + piece_type +
+    print(current_player + " was forced to add one of their " + piece_type +
           " to the pot.")
 
 
@@ -114,7 +114,7 @@ def spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     spin_options = ["Nun", "Hey", "Shin", "Gimel"]
     for i in range(len(players)):
         spin_result = random.choice(spin_options)
-        print("The dreidel has landed on " + spin_result + ".")
+        print("\nThe dreidel has landed on " + spin_result + ".")
 
         if spin_result == "Nun":
             nun(players[i], piece_type)
@@ -147,11 +147,11 @@ def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
         for i in range(len(players)):
             print(players[i] + ": " + str(player_pieces[i]) + " " + piece_type)
 
-        print("Each player will now spin the dreidel.")
+        print("\nEach player will now spin the dreidel.")
         spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
 
         if len(players) > 1:
-            print("The round has ended.\n"
+            print("\nThe round has ended.\n"
                   "Each player will now add one of their " + piece_type +
                   " to the pot.")
             for i in range(len(players)):
@@ -305,7 +305,7 @@ def main():
 
     # set the unit of currency
     piece_type = input("Which type of piece would you like to play with?"
-                       "(ex. candy bars, dollars)\n"
+                       " (ex. candy bars, dollars)\n"
                        "(Please answer in the plural form) \n")
 
     # set the number of pieces each player starts with
