@@ -10,7 +10,7 @@ import random
 
 def nun(current_player, piece_type):
     """
-    Adds/removes 0 pieces from player when dreidel lands on Nun
+    Add/remove 0 pieces from player when dreidel lands on Nun
     :param current_player: the player who spun the dreidel
     :param piece_type: the unit of currency the players are using
     """
@@ -19,7 +19,7 @@ def nun(current_player, piece_type):
 
 def hey(current_player, current_player_total, pcs_in_pot):
     """
-    Adds half of pot total to player total when dreidel lands on Hey
+    Add half of pot total to player total when dreidel lands on Hey
     :param current_player: the player who spun the dreidel
     :param current_player_total: num of pieces belonging to the current player
     :param pcs_in_pot: the total number of pieces in the pot
@@ -40,7 +40,7 @@ def hey(current_player, current_player_total, pcs_in_pot):
 
 def shin(current_player, current_player_total, piece_type, pcs_in_pot):
     """
-    Removes one piece from player when dreidel lands on Shin
+    Remove one piece from player when dreidel lands on Shin
     :param current_player: the player who spun the dreidel
     :param current_player_total: num of pieces belonging to the current player
     :param piece_type: the unit of currency the players are using
@@ -58,7 +58,7 @@ def shin(current_player, current_player_total, piece_type, pcs_in_pot):
 
 def gimel(current_player, current_player_total, pcs_in_pot):
     """
-    Gives entire pot to player when dreidel lands on Gimel
+    Give entire pot to player when dreidel lands on Gimel
     :param current_player: the player who spun the dreidel
     :param current_player_total: num of pieces belonging to the current player
     :param pcs_in_pot: the total number of pieces in the pot
@@ -133,8 +133,8 @@ def spin(current_player, current_player_total, piece_type, pcs_in_pot):
         current_player_total, pcs_in_pot = hey(current_player,
                                                current_player_total, pcs_in_pot)
     elif spin_result == "Shin":
-        current_player_total, pcs_in_pot = shin(current_player,
-                                                current_player_total, piece_type, pcs_in_pot)
+        current_player_total, pcs_in_pot = shin(current_player, current_player_total,
+                                                piece_type, pcs_in_pot)
     elif spin_result == "Gimel":
         current_player_total, pcs_in_pot = gimel(current_player,
                                                  current_player_total, pcs_in_pot)
@@ -149,7 +149,7 @@ def spin(current_player, current_player_total, piece_type, pcs_in_pot):
 
 def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     """
-    Runs through the current round
+    Run through the current round
     :param players: the list of players in the game
     :param player_pieces: the list of piece quantities for each player
     :param piece_type: the unit of currency the players are using
@@ -158,6 +158,7 @@ def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
     """
     pcs_in_pot = check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
     if len(players) > 1:
+        # print player totals
         for i in range(len(players)):
             print(players[i] + ": " + str(player_pieces[i]) + " " + piece_type)
 
@@ -183,7 +184,7 @@ def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
 
 def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
     """
-    Initiates a series of rounds using the new game parameters
+    Initiate a series of rounds until the game ends
     :param num_players: the number of players at the start of the game
     :param piece_type: the unit of currency the players are using
     :param pcs_per_player: the number of pieces each player starts with
@@ -215,7 +216,7 @@ def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
 
 def main():
     """
-    Sets up the players and pieces, running each round until someone wins.
+    Set up the players and pieces and start a new game
     """
     print("Hello! Welcome to Dreidel Sim!\n")
 
