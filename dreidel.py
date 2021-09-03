@@ -23,6 +23,7 @@ def hey(current_player, current_player_total, pcs_in_pot):
     :param current_player: the player who spun the dreidel
     :param current_player_total: num of pieces belonging to the current player
     :param pcs_in_pot: the total number of pieces in the pot
+    :return the new current player total and pot total
     """
     if pcs_in_pot % 2 == 0:
         winnings = pcs_in_pot / 2
@@ -34,6 +35,8 @@ def hey(current_player, current_player_total, pcs_in_pot):
 
     print(current_player + " has received half the pot.")
 
+    return current_player_total, pcs_in_pot
+
 
 def shin(current_player, current_player_total, piece_type, pcs_in_pot):
     """
@@ -42,12 +45,15 @@ def shin(current_player, current_player_total, piece_type, pcs_in_pot):
     :param current_player_total: num of pieces belonging to the current player
     :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
+    :return the new current player total and pot total
     """
     pcs_in_pot += 1
     current_player_total -= 1
 
     print(current_player + " was forced to add one of their " + piece_type +
           " to the pot.")
+
+    return current_player_total, pcs_in_pot
 
 
 def gimel(current_player, current_player_total, pcs_in_pot):
@@ -56,11 +62,14 @@ def gimel(current_player, current_player_total, pcs_in_pot):
     :param current_player: the player who spun the dreidel
     :param current_player_total: num of pieces belonging to the current player
     :param pcs_in_pot: the total number of pieces in the pot
+    :return the new current player total and pot total
     """
     current_player_total += pcs_in_pot
     pcs_in_pot -= pcs_in_pot
 
     print(current_player + " received the whole pot!")
+
+    return current_player_total, pcs_in_pot
 
 
 def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
@@ -71,6 +80,7 @@ def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
     :param total_piece_count: the number of pieces that must always be present
+    :return new pot total
     """
     i = 0
     while i < len(players):
@@ -96,41 +106,45 @@ def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
         if pcs_in_pot == 0:
             print("The pot is empty.\n"
                   "Every player must add another one of their "
-                  + piece_type + "to it.")
+                  + piece_type + " to it.")
             for i in range(len(players)):
                 player_pieces[i] -= 1
                 pcs_in_pot += 1
 
+    return pcs_in_pot
 
-def spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
+
+def spin(current_player, current_player_total, piece_type, pcs_in_pot):
     """
     Give each player the chance to spin the dreidel
-    :param players: the list players in the game
-    :param player_pieces: the list of piece quantities for each player
+    :param current_player: the player who is spinning the dreidel
+    :param current_player_total: num of pieces belonging to the current player
     :param piece_type: the unit of currency the players are using
     :param pcs_in_pot: the total number of pieces in the pot
-    :param total_piece_count: the number of pieces that must always be present
+    :return the new current player total and pot total
     """
     spin_options = ["Nun", "Hey", "Shin", "Gimel"]
-    for i in range(len(players)):
-        spin_result = random.choice(spin_options)
-        print("\nThe dreidel has landed on " + spin_result + ".")
+    spin_result = random.choice(spin_options)
+    print("\nThe dreidel has landed on " + spin_result + ".")
 
-        if spin_result == "Nun":
-            nun(players[i], piece_type)
-        elif spin_result == "Hey":
-            hey(players[i], player_pieces[i], pcs_in_pot)
-        elif spin_result == "Shin":
-            shin(players[i], player_pieces[i], piece_type, pcs_in_pot)
-        elif spin_result == "Gimel":
-            gimel(players[i], player_pieces[i], pcs_in_pot)
+    if spin_result == "Nun":
+        nun(current_player, piece_type)
+    elif spin_result == "Hey":
+        current_player_total, pcs_in_pot = hey(current_player,
+                                               current_player_total, pcs_in_pot)
+    elif spin_result == "Shin":
+        current_player_total, pcs_in_pot = shin(current_player,
+                                                current_player_total, piece_type, pcs_in_pot)
+    elif spin_result == "Gimel":
+        current_player_total, pcs_in_pot = gimel(current_player,
+                                                 current_player_total, pcs_in_pot)
 
-        quit_early = input("(This player can quit by pressing 'q'.) ")
-        if quit_early == "q":
-            pcs_in_pot += player_pieces[i]
-            player_pieces[i] -= player_pieces[i]
+    quit_early = input("(This player can quit by pressing 'q'.) ")
+    if quit_early == "q":
+        pcs_in_pot += current_player_total
+        current_player_total -= current_player_total
 
-        check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+    return current_player_total, pcs_in_pot
 
 
 def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
@@ -142,13 +156,17 @@ def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
     :param pcs_in_pot: the total number of pieces in the pot
     :param total_piece_count: the number of pieces that must always be present
     """
-    check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+    pcs_in_pot = check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
     if len(players) > 1:
         for i in range(len(players)):
             print(players[i] + ": " + str(player_pieces[i]) + " " + piece_type)
 
         print("\nEach player will now spin the dreidel.")
-        spin(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
+        for i in range(len(players)):
+            player_pieces[i], pcs_in_pot = spin(players[i], player_pieces[i], piece_type,
+                                                pcs_in_pot)
+            pcs_in_pot = check(players, player_pieces, piece_type, pcs_in_pot,
+                               total_piece_count)
 
         if len(players) > 1:
             print("\nThe round has ended.\n"
@@ -193,101 +211,6 @@ def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
 
     while len(players) > 1:
         new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
-
-
-'''
-# check function
-def check(current_player_totals, current_players, current_pot_total, initial_group, initial_total, units):
-    i = 0
-    while i < len(current_player_totals):
-        # elimination
-        if current_player_totals[i] < 1:
-            print(current_players[i] + " has run out of " + units + ". They are out.")
-            current_players.remove(current_players[i])
-            current_player_totals.remove(current_player_totals[i])
-            # game ends
-            if len(current_players) == 1:
-                if current_player_totals[0] == 0:
-                    print(current_players[0] + " also ran out.\nNo one won :( Game Over!")
-                    break
-                else:
-                    print(current_players[0] + " has won!\nThey received " + str(
-                        initial_group * initial_total) + " " + units + ".\nGame Over")
-                    break
-        else:
-            i += 1
-    if current_pot_total <= 1:
-        print("The pot has reached a total of " + str(
-            current_pot_total) + " " + units + ". Every player must add another one of their " + units + " to the pot.")
-        for i in range(len(current_player_totals)):
-            current_player_totals[i] -= 1
-        current_pot_total = initial_total * initial_group - sum(current_player_totals)
-
-
-# spin function
-def spin(current_player_totals, current_players, current_pot_total, initial_group, initial_total, units):
-    for i in range(len(current_players)):
-        spin_options = ["Nun", "Hey", "Shin", "Gimel"]
-        spin_result = random.choice(spin_options)
-        print("The dreidel has landed on " + spin_result + ".")
-
-        # Nun function adds 0 pieces to player
-        if spin_result == "Nun":
-            print(current_players[i] + " has neither lost nor gained " + units + ".")
-        # Hey function adds half of pot variable total
-        elif spin_result == "Hey":
-            if current_pot_total % 2 != 0:
-                current_player_totals[i] += (current_pot_total - 1) / 2
-                current_pot_total = initial_total * initial_group - sum(current_player_totals)
-            else:
-                current_player_totals[i] += current_pot_total / 2
-                current_pot_total = initial_total * initial_group - sum(current_player_totals)
-            print(current_players[i] + " has received half the pot.")
-        # Shin function subtracts piece from player
-        elif spin_result == "Shin":
-            current_pot_total += 1
-            current_player_totals[i] -= 1
-            print(current_players[i] + " was forced to add one of their " + units + " to the pot.")
-        # Gimel function gives pot total to player
-        elif spin_result == "Gimel":
-            current_player_totals[i] += current_pot_total
-            current_pot_total = 0
-            print(current_players[i] + " received the whole pot!")
-
-        if current_pot_total <= 1:
-            print("The pot has reached a total of " + str(current_pot_total) + " " + units +
-                  ".\n Every player must add another one of their " + units + " to the pot.")
-            for i in range(len(current_player_totals)):
-                current_player_totals[i] -= 1
-            current_pot_total = initial_total * initial_group - sum(current_player_totals)
-
-        quit = input("(This player can quit by pressing 'q'.) ")
-        if quit == "q":
-            current_player_totals[i] = 0
-
-
-# new round function
-def newRound(current_player_totals, current_players, current_pot_total, initial_group, initial_total, units):
-    check(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
-    if len(current_players) > 1:
-        for i in range(len(current_players)):
-            print(current_players[i] + ": " + str(current_player_totals[i]) + " " + units)
-        print("Each player will now spin the dreidel.")
-        spin(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
-        check(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
-        if len(current_players) > 1:
-            print("The round has ended. Each player will now add one of their " + units + " to the pot.")
-            for i in range(len(current_player_totals)):
-                current_player_totals[i] -= 1
-            current_pot_total = initial_total * initial_group - sum(current_player_totals)
-            print("Current Pot Total: " + str(current_pot_total) + " " + units)
-            print("Press any key to start the next round.")
-            input()
-
-
-while len(players) > 1:
-    newRound(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
-'''
 
 
 def main():
