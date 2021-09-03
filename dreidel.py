@@ -6,25 +6,71 @@ purpose: simulates the traditional Jewish game dreidel
 """
 
 import random
+# FIXME if user is taking from pot, check amount they must take vs amount in pot and act accordingly
+# FIXME if user is adding to pot, check amount they have vs the amount they must give
+# user totals and pot total should never be below 0
 
 
-def new_round(players, player_pieces, piece_type, pcs_in_pot):
+def check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
+    """
+    Check if any player or the pot has run out of piece and rectify this
+    :param players: the list players in the game
+    :param player_pieces: the list of piece quantities for each player
+    :param piece_type: the unit of currency the players will use
+    :param pcs_in_pot: the total number of pieces in the pot
+    :param total_piece_count: the number of pieces that must always be present
+    """
+    i = 0
+    while i < len(players):
+        # eliminate player who has run out of pieces
+        if player_pieces[i] == 0:
+            print(players[i] + " has run out of " + piece_type + ". They are out.")
+            players.remove(players[i])
+            player_pieces.remove(player_pieces[i])
+            pcs_in_pot += total_piece_count - sum(player_pieces)
+            # end game if one player remains
+            if len(players) == 1:
+                if player_pieces[0] == 0:
+                    print(players[0] + " also ran out.\nNo one won :(")
+                else:
+                    print(players[0] + " has won!\nThey get all " +
+                          str(total_piece_count) + " " + piece_type + ".")
+                print("GAME OVER")
+                break
+        else:
+            i += 1
+
+        # restock empty pot
+        if pcs_in_pot == 0:
+            print("The pot is empty.\n"
+                  "Every player must add another one of their "
+                  + piece_type + "to it.")
+            for i in range(len(players)):
+                player_pieces[i] -= 1
+                pcs_in_pot += 1
+
+
+def new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count):
     """
     Runs through the current round
     :param players: the list of players in the game
     :param player_pieces: the list of piece quantities for each player
     :param piece_type: the unit of currency the players will use
     :param pcs_in_pot: the total number of pieces in the pot
+    :param total_piece_count: the number of pieces that must always be present
     """
+    check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
     # body
+    check(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
 
 
-def new_game(num_players, piece_type, pcs_per_player):
+def new_game(num_players, piece_type, pcs_per_player, total_piece_count):
     """
     Initiates a series of rounds using the new game parameters
     :param num_players: the number of players at the start of the game
     :param piece_type: the unit of currency the players will use
     :param pcs_per_player: the number of pieces each player starts with
+    :param total_piece_count: the number of pieces that must always be present
     """
     players = []
     player_pieces = []     # matches indices to keep track of pieces each player has
@@ -46,7 +92,8 @@ def new_game(num_players, piece_type, pcs_per_player):
     print("Press any key to continue")
     input()
 
-    new_round(players, player_pieces, piece_type, pcs_in_pot)
+    while len(players) > 1:
+        new_round(players, player_pieces, piece_type, pcs_in_pot, total_piece_count)
 
 
 '''
@@ -170,7 +217,10 @@ def main():
             input("How many " + piece_type + " would you like to play with?"
                                              "\n(Must be an integer greater than 1) \n"))
 
-    new_game(num_players, piece_type, pcs_per_player)
+    # the number of pieces that must always be present
+    total_piece_count = num_players * pcs_per_player
+
+    new_game(num_players, piece_type, pcs_per_player, total_piece_count)
 
 
 if __name__ == "__main__":
