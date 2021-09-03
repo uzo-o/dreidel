@@ -8,6 +8,48 @@ purpose: simulates the traditional Jewish game dreidel
 import random
 
 
+def new_round(players, player_pieces, piece_type, pcs_in_pot):
+    """
+    Runs through the current round
+    :param players: the list of players in the game
+    :param player_pieces: the list of piece quantities for each player
+    :param piece_type: the unit of currency the players will use
+    :param pcs_in_pot: the total number of pieces in the pot
+    """
+    # body
+
+
+def new_game(num_players, piece_type, pcs_per_player):
+    """
+    Initiates a series of rounds using the new game parameters
+    :param num_players: the number of players at the start of the game
+    :param piece_type: the unit of currency the players will use
+    :param pcs_per_player: the number of pieces each player starts with
+    """
+    players = []
+    player_pieces = []     # matches indices to keep track of pieces each player has
+
+    # set player names and initial piece totals
+    for i in range(num_players):
+        players.append("Player " + str(i + 1))
+        player_pieces.append(pcs_per_player)
+    print("Each player has started with " + str(pcs_per_player) + " " + piece_type + ".")
+
+    # create pot and add pieces to start
+    pcs_in_pot = 0
+    for i in range(len(player_pieces)):
+        player_pieces[i] -= 1
+        pcs_in_pot += 1
+    print("Each player has added one of their " + piece_type + " to the pot.\n"
+          "There are now " + str(pcs_in_pot) + " " + piece_type + " in the pot.")
+
+    print("Press any key to continue")
+    input()
+
+    new_round(players, player_pieces, piece_type, pcs_in_pot)
+
+
+'''
 # check function
 def check(current_player_totals, current_players, current_pot_total, initial_group, initial_total, units):
     i = 0
@@ -78,61 +120,15 @@ def spin(current_player_totals, current_players, current_pot_total, initial_grou
             current_player_totals[i] = 0
 
 
-# greeting
-print("Hello! Welcome to Dreidel Sim!")
-print()
-
-# number of players
-playersQuantity = int(input("How many players would you like to include? "))
-while playersQuantity <= 1:
-    playersQuantity = int(input("How many players would you like to include?\n(Must be an integer greater than 1) "))
-print()
-
-# unit of currency
-pieceType = input(
-    "Which type of piece would you like to play with? (ex. candy bars, dollars)\n(Please answer in the plural form) ")
-
-# variables for number of pieces for each player
-piecesAssign = int(input("How many " + pieceType + " each would you like to play with? "))
-while piecesAssign < 2:
-    piecesAssign = int(
-        input("How many " + pieceType + " would you like to play with?\n(Must be an integer greater than 1) "))
-
-print()
-
-players = []
-playerPieces = []
-
-for i in range(playersQuantity):
-    players.append("Player " + str(i + 1))
-    playerPieces.append(piecesAssign)
-
-print("Each player has started with " + str(playerPieces[0]) + " " + pieceType + ".")
-
-# variable for pieces in pot
-potTotal = 0
-
-# pieces added to pot in beginning
-for i in range(len(playerPieces)):
-    playerPieces[i] -= 1
-    potTotal += 1
-
-# intro
-print("Each player has added one of their " + pieceType + " to the pot.\nThere are now " + str(
-    potTotal) + " " + pieceType + " in the pot.")
-print("Press any key to continue")
-input()
-
-
 # new round function
 def newRound(current_player_totals, current_players, current_pot_total, initial_group, initial_total, units):
-    check(playerPieces, players, potTotal, playersQuantity, piecesAssign, pieceType)
+    check(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
     if len(current_players) > 1:
         for i in range(len(current_players)):
             print(current_players[i] + ": " + str(current_player_totals[i]) + " " + units)
         print("Each player will now spin the dreidel.")
-        spin(playerPieces, players, potTotal, playersQuantity, piecesAssign, pieceType)
-        check(playerPieces, players, potTotal, playersQuantity, piecesAssign, pieceType)
+        spin(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
+        check(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
         if len(current_players) > 1:
             print("The round has ended. Each player will now add one of their " + units + " to the pot.")
             for i in range(len(current_player_totals)):
@@ -144,4 +140,38 @@ def newRound(current_player_totals, current_players, current_pot_total, initial_
 
 
 while len(players) > 1:
-    newRound(playerPieces, players, potTotal, playersQuantity, piecesAssign, pieceType)
+    newRound(playerPieces, players, pcs_in_pot, playersQuantity, piecesAssign, pieceType)
+'''
+
+
+def main():
+    """
+    Sets up the players and pieces, running each round until someone wins.
+    """
+    print("Hello! Welcome to Dreidel Sim!\n")
+
+    # set the number of players
+    num_players = int(input("How many players would you like to include? \n"))
+    while num_players <= 1:
+        num_players = int(input(
+            "How many players would you like to include?\n"
+            "(Must be an integer greater than 1) \n"))
+
+    # set the unit of currency
+    piece_type = input("Which type of piece would you like to play with?"
+                       "(ex. candy bars, dollars)\n"
+                       "(Please answer in the plural form) \n")
+
+    # set the number of pieces each player starts with
+    pcs_per_player = int(input("How many " + piece_type +
+                               " each would you like to play with? \n"))
+    while pcs_per_player < 2:
+        pcs_per_player = int(
+            input("How many " + piece_type + " would you like to play with?"
+                                             "\n(Must be an integer greater than 1) \n"))
+
+    new_game(num_players, piece_type, pcs_per_player)
+
+
+if __name__ == "__main__":
+    main()
