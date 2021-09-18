@@ -1,5 +1,5 @@
 # Dreidel
-a simulation of dreidel, a Jewish game played during Hanukkah
+a simulation of the Jewish game dreidel played during Hanukkah
 
 ## Description
 With this dreidel simulator, you can observe a game of dreidel with a virtually unlimited number of players
